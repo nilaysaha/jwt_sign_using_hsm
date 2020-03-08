@@ -1,0 +1,32 @@
+{
+  "name": "jwt_sign_using_hsm",
+  "version": "1.0.0",
+  "description": "Module with goal of generating token in keycloak and signing it with HSM module from google",
+  "main": "token_generate_keycloak.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/nilaysaha/jwt_sign_using_hsm.git"
+  },
+  "keywords": [
+    "token",
+    "keycloak",
+    "kms"
+  ],
+  "author": "Nilay Saha",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/nilaysaha/jwt_sign_using_hsm/issues"
+  },
+  "homepage": "https://github.com/nilaysaha/jwt_sign_using_hsm#readme",
+  "dependencies": {
+    "axios": "^0.19.2",
+    "base64url": "^3.0.1",
+    "crypto": "^1.0.1",
+    "dotenv": "^8.2.0",
+    "jsonwebtoken": "^8.5.1",
+    "querystring": "^0.2.0"
+  }
+}
