@@ -29,16 +29,18 @@ class Token{
 
     async fetch_jwt_token(username, password, client_id, client_secret){
 	var packet = {
-	    "token_type_hint":"access_token",	    
 	    "client_id": client_id,
-	    "client_secret": client_secret,
+//	    "client_secret": client_secret,
 	    "username": username,
 	    "password": password,
 	    "grant_type":"password"
 	}
 
 	var config = {
-            headers: {'Content-Type': 'application/x-www-form-urlencoded'}
+            headers: {
+		'Content-Type': 'application/x-www-form-urlencoded',
+		"Access-Control-Allow-Origin": "*"
+	    },
 	}
 
 	try{
