@@ -47,7 +47,7 @@ class Token{
 	    console.log(packet)
 	    const response = await axios.post( this.JWT_TOKEN_ENDPOINT, qstring.stringify(packet), config);
 	    console.log(response)
-	    return response
+	    return {"access_token": response.data.access_token, "refresh_token":  response.data.refresh_token}
 	}
 	catch(err) {
 	    console.error(err);
@@ -59,7 +59,7 @@ class Token{
 	
     }
 
-    async verify_jwt_token(jwt_token){
+    async verify_jwt_token(jwt_token, pub_key){
 	const crypto = require('crypto');
 	const verifyFunction = crypto.createVerify('RSA-SHA256');
 	
@@ -73,7 +73,7 @@ class Token{
 	verifyFunction.end();
 
 	const jwtSignatureBase64 = base64.toBase64(jwtSignature);
-	const signatureIsValid = verifyFunction.verify(PUB_KEY, jwtSignatureBase64, 'base64');
+	const signatureIsValid = verifyFunction.verify(pub_key, jwtSignatureBase64, 'base64');
 	jwt.verify(token, jwtKey)
     }
     
@@ -84,14 +84,20 @@ if (require.main == module){
 
     (async () => {
 
+	//Pre requisite to testing this is a .env file containing the following data corresponding to a setup keycloak:USERNAME, PASSWORD, CLIENT_ID, NODE_TLS_REJECT_UNAUTHORIZED=0
+	
 	//test the fetching of public key
 	REALM = 'Ambidexter'
 	t = new Token(REALM)
-	console.log(await t.fetch_public_key())
-
+	pub_key = await t.fetch_public_key()
+	console.log(`Public key fetched:{pub_key}`)
+     
 	//Now testing getting of jwt from a keycloak instance
-	let token = await t.fetch_jwt_token(process.env.USERNAME, process.env.PASSWORD, process.env.CLIENT_ID, process.env.CLIENT_SECRET)
-	console.log(token)
+	let tokens = await t.fetch_jwt_token(process.env.USERNAME, process.env.PASSWORD, process.env.CLIENT_ID, process.env.CLIENT_SECRET)
+	console.log(`Access token:{tokens.access_token} \n Refresh Token:{tokens.refresh_token}`)
+
+	//Now verify the token obtained above using the public key.
+	await t.verify_jwt_token(tokens.access_token, pub_key)
 	
     })();
     
