@@ -55,16 +55,10 @@ class Token{
 	//Question: What sort of grant type do we use to get the token ?
     }
 
-    async sign_token_using_hsm(token){
-	
-    }
-
-    async verify_jwt_token(jwt_token, pub_key){
+    async sample_create_token(jwt_token){
 	const crypto = require('crypto');
 	const verifyFunction = crypto.createVerify('RSA-SHA256');
-	
-	let public_key = await this.fetch_jwt_token()
-	
+
 	const jwtHeader = jwt_token.split('.')[0];
 	const jwtPayload = jwt_token.split('.')[1];
 	const jwtSignature = jwt_token.split('.')[2];
@@ -74,7 +68,21 @@ class Token{
 
 	const jwtSignatureBase64 = base64.toBase64(jwtSignature);
 	const signatureIsValid = verifyFunction.verify(pub_key, jwtSignatureBase64, 'base64');
-	jwt.verify(token, jwtKey)
+    }
+    
+    async verify_jwt_token(jwt_token, pub_key){
+	try {
+	    let options = { algorithms: ['RS256'] }
+	    let decoded = jwt.verify(jwt_token, pub_key, options)	
+	    return decoded
+	}
+	catch(err) {
+	    console.error(err)
+	}
+    }
+
+    async sign_token_using_hsm(token){
+	
     }
     
 }
@@ -83,22 +91,30 @@ class Token{
 if (require.main == module){
 
     (async () => {
-
 	//Pre requisite to testing this is a .env file containing the following data corresponding to a setup keycloak:USERNAME, PASSWORD, CLIENT_ID, NODE_TLS_REJECT_UNAUTHORIZED=0
-	
-	//test the fetching of public key
-	REALM = 'Ambidexter'
-	t = new Token(REALM)
-	pub_key = await t.fetch_public_key()
-	console.log(`Public key fetched:{pub_key}`)
-     
-	//Now testing getting of jwt from a keycloak instance
-	let tokens = await t.fetch_jwt_token(process.env.USERNAME, process.env.PASSWORD, process.env.CLIENT_ID, process.env.CLIENT_SECRET)
-	console.log(`Access token:{tokens.access_token} \n Refresh Token:{tokens.refresh_token}`)
 
-	//Now verify the token obtained above using the public key.
-	await t.verify_jwt_token(tokens.access_token, pub_key)
-	
+	try {
+	    //test the fetching of public key
+	    REALM = 'Ambidexter'
+	    t = new Token(REALM)
+	    pub_key = await t.fetch_public_key()
+	    console.log(`Public key fetched:{pub_key}`)
+	    public_key_formatted = `-----BEGIN PUBLIC KEY-----\n${pub_key}\n-----END PUBLIC KEY-----`
+	    
+	    //Now testing getting of jwt from a keycloak instance
+	    let tokens = await t.fetch_jwt_token(process.env.USERNAME, process.env.PASSWORD, process.env.CLIENT_ID, process.env.CLIENT_SECRET)
+	    //console.log(`Access token:${tokens.access_token} \n Refresh Token:${tokens.refresh_token}`)
+	    
+	    //Now verify the token obtained above using the public key.
+	    console.log(`Now verifying token:${tokens.access_token}\n`)
+	    console.log(`using public key:\n ${public_key_formatted}`)
+	    let decoded = await t.verify_jwt_token(tokens.access_token, public_key_formatted)
+	    console.log(decoded)	    
+	}
+	catch (err) {
+	    console.error(err)
+	}
+
     })();
     
 }
