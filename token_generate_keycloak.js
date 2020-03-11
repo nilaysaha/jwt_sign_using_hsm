@@ -81,22 +81,16 @@ class Token{
 	}
     }
 
-    async sign_token_using_hsm(token){
-	
-    }
-    
 }
 
 
 if (require.main == module){
 
     (async () => {
-	//Pre requisite to testing this is a .env file containing the following data corresponding to a setup keycloak:USERNAME, PASSWORD, CLIENT_ID, NODE_TLS_REJECT_UNAUTHORIZED=0
-
+	//Pre requisite to testing this is a .env file containing the following data corresponding to a setup keycloak:REALM, USERNAME, PASSWORD, CLIENT_ID, NODE_TLS_REJECT_UNAUTHORIZED=0
 	try {
 	    //test the fetching of public key
-	    REALM = 'Ambidexter'
-	    t = new Token(REALM)
+	    t = new Token(process.env.REALM)
 	    pub_key = await t.fetch_public_key()
 	    console.log(`Public key fetched:{pub_key}`)
 	    public_key_formatted = `-----BEGIN PUBLIC KEY-----\n${pub_key}\n-----END PUBLIC KEY-----`
@@ -114,7 +108,6 @@ if (require.main == module){
 	catch (err) {
 	    console.error(err)
 	}
-
     })();
     
 }
