@@ -22,7 +22,7 @@
   },
   "homepage": "https://github.com/nilaysaha/jwt_sign_using_hsm#readme",
   "dependencies": {
-    "axios": "^0.19.2",
+    "axios": "^0.21.1",
     "base64url": "^3.0.1",
     "crypto": "^1.0.1",
     "dotenv": "^8.2.0",
